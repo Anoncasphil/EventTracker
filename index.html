@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SignIn & SignUp</title>
+  <link rel="stylesheet" type="text/css" href="./style.css" />
+  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="forms-container">
+      <div class="signin-signup">
+        <form action="homepage.html" class="sign-in-form">
+          <h2 class="title">Sign In</h2>
+          <div class="input-field">
+            <i class="fas fa-user"></i>
+            <input type="email" placeholder="Email" id="email" />
+          </div>
+          <div class="input-field">
+            <i class="fas fa-lock"></i>
+            <input type="password" placeholder="Password" id="signin-password" />
+          </div>
+          <input type="submit" value="Login" class="btn solid" id="signin-email"/>
+        </form>
+        
+        <form action="#" class="sign-up-form" id="sign-up-form">
+          <h2 class="title">Sign Up</h2>
+          <div class="input-field">
+            <i class="fas fa-user"></i>
+            <input type="text" placeholder="First Name" id="signup-firstname" />
+          </div>
+          <div class="input-field">
+            <i class="fas fa-user"></i>
+            <input type="text" placeholder="Last Name" id="signup-lastname" />
+          </div>
+          <div class="input-field">
+            <i class="fas fa-envelope"></i>
+            <input type="email" placeholder="Email" id="signup-email" />
+          </div>
+          <div class="input-field">
+            <i class="fas fa-lock"></i>
+            <input type="password" placeholder="Password" id="signup-password" />
+          </div>
+          <label for="profile-picture">Profile Picture:</label>
+          <div class="custom-file-input">
+            <span>Select File</span>
+            <input type="file" id="profile-picture" name="profile_picture" accept="image/*" onchange="displayImage(this)">
+          </div>
+          <img id="selected-image" alt="Selected Image">
+          <input type="submit" value="Sign Up" class="btn solid" id="signup-btn" />
+          <p class="social-text"></p>
+          <div class="social-media">
+            <!-- Add your social media icons or links here -->
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="panels-container">
+      <div class="panel left-panel">
+        <div class="content">
+          <h3>New here?</h3>
+          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio minus natus est.</p>
+          <button class="btn transparent" id="sign-up-btn">Sign Up</button>
+        </div>
+        <img src="./img/log.png" class="image" alt="">
+      </div>
+      <div class="panel right-panel">
+        <div class="content">
+          <h3>One of us?</h3>
+          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio minus natus est.</p>
+          <button class="btn transparent" id="sign-in-btn">Sign In</button>
+        </div>
+        <img src="./img/register.svg" class="image" alt="">
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAcIVBd3UzxOZ-A8PQnjqsJGoHzYQ0nWkU",
+  authDomain: "eventtracker-668a2.firebaseapp.com",
+  databaseURL: "https://eventtracker-668a2-default-rtdb.firebaseio.com",
+  projectId: "eventtracker-668a2",
+  storageBucket: "eventtracker-668a2.appspot.com",
+  messagingSenderId: "246963100780",
+  appId: "1:246963100780:web:6bab2531ac4ca2853c0c49",
+  measurementId: "G-2SV66DQ4JS"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const database = getDatabase(app);
+const auth = getAuth();
+
+const signUpForm = document.getElementById('sign-up-form');
+const signUpBtn = document.getElementById('signup-btn');
+const container = document.querySelector('.container');
+
+// Function to redirect to sign-in form
+function redirectToSignIn() {
+  container.classList.remove('sign-up-mode');
+}
+
+signUpForm.addEventListener('submit', (e) => {
+  e.preventDefault(); // Prevent the default form submission
+
+  var firstname = document.getElementById('signup-firstname').value;
+  var lastname = document.getElementById('signup-lastname').value;
+  var email = document.getElementById('signup-email').value;
+  var password = document.getElementById('signup-password').value;
+
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      // Signed up 
+      const user = userCredential.user;
+
+      // Save user data to the database
+      const userRef = ref(database, 'users/' + user.uid);
+      set(userRef, {
+        firstname: firstname,
+        lastname: lastname,
+        email: email
+      });
+
+      alert('User Created!');
+      // Additional logic if needed
+
+      // Redirect to sign-in form
+      redirectToSignIn();
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+
+      alert(errorMessage);
+    });
+});
+
+// Alternatively, you can also use the sign-up button click event
+signUpBtn.addEventListener('click', (e) => {
+  e.preventDefault(); // Prevent the default form submission
+
+  var firstname = document.getElementById('signup-firstname').value;
+  var lastname = document.getElementById('signup-lastname').value;
+  var email = document.getElementById('signup-email').value;
+  var password = document.getElementById('signup-password').value;
+
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      // Signed up 
+      const user = userCredential.user;
+
+      // Save user data to the database
+      const userRef = ref(database, 'users/' + user.uid);
+      set(userRef, {
+        firstname: firstname,
+        lastname: lastname,
+        email: email
+      });
+
+      alert('User Created!');
+      // Additional logic if needed
+
+      // Redirect to sign-in form
+      redirectToSignIn();
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+
+      alert(errorMessage);
+    });
+});
+
+sign_up_btn.addEventListener('click', () => {
+  container.classList.add('sign-up-mode');
+});
+
+sign_in_btn.addEventListener('click', () => {
+  container.classList.remove('sign-up-mode');
+});
+
+
+// Event listener for login button
+signInBtn.addEventListener('click', async (e) => {
+  e.preventDefault(); // Prevent the default form submission
+
+  // Get user input
+  const email = document.getElementById('signin-email').value;
+  const password = document.getElementById('signin-password').value;
+
+  // Validate email and password format
+  if (!isValidEmail(email)) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+
+  if (!isValidPassword(password)) {
+    alert('Please enter a valid password (minimum 6 characters).');
+    return;
+  }
+
+  try {
+    // Fetch user data from the database based on the entered email
+    const userSnapshot = await get(ref(database, 'users'), orderByChild('email').equalTo(email));
+    const userData = userSnapshot.val();
+
+    // Check if a user with the entered email exists
+    if (!userData) {
+      alert('User not found. Please check your credentials.');
+      return;
+    }
+
+    // Check if the entered password matches the stored password
+    const storedPassword = userData[Object.keys(userData)[0]].password; // Assuming password is stored in the 'password' field
+    if (password !== storedPassword) {
+      alert('Incorrect password. Please check your credentials.');
+      return;
+    }
+
+    // If validation passes, proceed with sign-in
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Successfully signed in
+        const user = userCredential.user;
+
+        // Additional logic if needed
+
+        // Redirect to homepage
+        window.location.href = 'homepage.html';
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+
+        // Handle login errors here
+        alert(errorMessage);
+      });
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    alert('An error occurred while processing your request. Please try again.');
+  }
+});
+</script>
+</body>
+</html>
